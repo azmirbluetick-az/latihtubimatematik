@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Latih Tubi Matematik - Cikgu Azman</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap');
+        
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+        }
+        
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        @media print {
+            @page { 
+                size: A4; 
+                margin: 10mm 10mm 15mm 10mm; 
+            }
+            body { 
+                background: white !important; 
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+            .no-print { 
+                display: none !important; 
+            }
+            .worksheet-container {
+                width: 100% !important;
+                max-width: none !important;
+                margin: 0 !important;
+                padding: 5mm !important;
+                box-shadow: none !important;
+                border: none !important;
+            }
+            .grid-print-3 {
+                display: grid !important;
+                grid-template-columns: repeat(3, 1fr) !important;
+                gap: 20px !important;
+            }
+            .grid-print-2 {
+                display: grid !important;
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 25px !important;
+            }
+            .grid-print-1 {
+                display: grid !important;
+                grid-template-columns: 1fr !important;
+                gap: 20px !important;
+            }
+            .question-card {
+                break-inside: avoid !important;
+                page-break-inside: avoid !important;
+                border: 1px solid #e2e8f0 !important;
+                display: block !important;
+            }
+            .answer-text {
+                color: #2563eb !important;
+                -webkit-print-color-adjust: exact;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen pb-12">
+
+    <!-- Control Panel (No Print) -->
+    <div class="no-print max-w-6xl mx-auto mt-8 px-4">
+        <div class="bg-white rounded-3xl shadow-2xl border border-slate-200 p-6 md:p-8">
+            <div class="flex flex-col md:flex-row items-center gap-4 mb-8 border-b border-slate-100 pb-6">
+                <div class="bg-indigo-600 p-4 rounded-2xl text-white shadow-lg shadow-indigo-200">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                </div>
+                <div class="text-center md:text-left">
+                    <h1 class="text-3xl font-black text-slate-800 tracking-tight">LATIH TUBI MATEMATIK</h1>
+                    <p class="text-indigo-600 font-bold uppercase tracking-widest text-xs mt-1">Sistem Penjana BBM - Cikgu Azman</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Main Topic -->
+                <div class="flex flex-col gap-1">
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Tajuk Utama</label>
+                    <select id="topicMain" onchange="updateSubOptions()" class="p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 font-bold text-slate-700">
+                        <option value="operasi">Operasi Asas</option>
+                        <option value="teroka">Teroka Nombor</option>
+                    </select>
+                </div>
+
+                <!-- Sub Topic -->
+                <div class="flex flex-col gap-1">
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Sub-Tajuk</label>
+                    <select id="topicSub" onchange="toggleExtraOptions()" class="p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 font-bold text-slate-700">
+                        <!-- Options filled by JS -->
+                    </select>
+                </div>
+
+                <!-- Range / Digits -->
+                <div class="flex flex-col gap-1">
+                    <label id="rangeLabel" class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Lingkungan</label>
+                    <select id="rangeSelect" class="p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 font-bold text-slate-700">
+                        <option value="100">Hingga 100</option>
+                        <option value="1000">Hingga 1 000</option>
+                        <option value="10000">Hingga 10 000</option>
+                        <option value="100000">Hingga 100 000</option>
+                    </select>
+                </div>
+
+                <!-- Extra Option -->
+                <div id="extraContainer" class="flex flex-col gap-1">
+                    <label id="extraLabel" class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Pilihan</label>
+                    <select id="extraSelect" class="p-3 bg-indigo-50 border border-indigo-100 text-indigo-700 rounded-xl outline-none font-bold">
+                        <!-- Options filled by JS -->
+                    </select>
+                </div>
+            </div>
+
+            <div class="mt-8 flex flex-wrap items-center gap-4 pt-6 border-t border-slate-100">
+                <div class="flex items-center gap-2 mr-auto">
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Bil. Soalan:</label>
+                    <select id="countSelect" class="p-2 bg-slate-50 border border-slate-200 rounded-lg font-bold text-slate-700">
+                        <option value="10">10</option>
+                        <option value="15">15</option>
+                        <option value="20" selected>20</option>
+                        <option value="30">30</option>
+                    </select>
+                </div>
+
+                <button onclick="generate()" class="bg-indigo-600 text-white px-8 py-3.5 rounded-2xl hover:bg-indigo-700 transition-all font-black flex items-center gap-3 shadow-xl shadow-indigo-200 active:scale-95">
+                    JANA SOALAN
+                </button>
+                
+                <button onclick="toggleAnswers()" class="bg-slate-100 text-slate-600 px-8 py-3.5 rounded-2xl font-black transition-all border border-slate-200 shadow-sm active:scale-95 hover:bg-slate-200" id="btnShowAns">
+                    PAPAR JAWAPAN
+                </button>
+
+                <button onclick="window.print()" class="bg-emerald-600 text-white px-10 py-3.5 rounded-2xl hover:bg-emerald-700 transition-all font-black shadow-xl shadow-emerald-200 flex items-center gap-3 active:scale-95">
+                    CETAK PDF
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Worksheet Paper -->
+    <div id="paper" class="max-w-[210mm] mx-auto bg-white p-[15mm] shadow-2xl worksheet-container min-h-[297mm] flex flex-col border border-slate-200 mt-10 print:mt-0 print:border-none">
+        
+        <!-- Header -->
+        <div class="border-b-8 border-double border-slate-900 pb-6 mb-8 text-center">
+            <h2 class="text-4xl font-black tracking-tighter text-slate-900 uppercase mb-4">LATIH TUBI MATEMATIK</h2>
+            <p id="topicLabel" class="text-lg font-black text-slate-800 mb-6 border-y-2 border-slate-200 py-1 inline-block px-8 uppercase"></p>
+            
+            <div class="grid grid-cols-2 text-sm font-bold uppercase gap-12 px-2 mt-4">
+                <div class="text-left border-b-2 border-slate-400 pb-1 flex items-end">NAMA: <span class="flex-grow ml-3"></span></div>
+                <div class="text-left border-b-2 border-slate-400 pb-1 flex items-end">TARIKH: <span class="flex-grow ml-3"></span></div>
+            </div>
+            
+            <div id="metaInfo" class="mt-6 flex flex-wrap justify-center gap-x-6 gap-y-2 text-[10px] font-black text-slate-500 uppercase tracking-widest italic bg-slate-50 py-2 px-4 rounded-full border border-slate-100">
+            </div>
+        </div>
+
+        <!-- Questions Grid -->
+        <div id="grid" class="grid gap-x-8 gap-y-10 flex-grow content-start">
+            <!-- Questions Injection -->
+        </div>
+
+        <!-- Footer -->
+        <div class="mt-12 pt-6 border-t-4 border-slate-100 flex flex-col items-center gap-2">
+            <div class="text-sm font-black uppercase tracking-[0.2em] text-slate-800">
+                Cikgu Azman SK Kerubong, Melaka
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentQuestions = [];
+        let answersVisible = false;
+
+        const units = ["", "satu", "dua", "tiga", "empat", "lima", "enam", "tujuh", "lapan", "sembilan", "sepuluh", "sebelas"];
+        
+        function numberToWords(n) {
+            if (n === 0) return "sifar";
+            if (n < 12) return units[n];
+            if (n < 20) return units[n - 10] + " belas";
+            if (n < 100) {
+                let p = Math.floor(n / 10);
+                let s = n % 10;
+                return (p === 1 ? "se" : units[p]) + " puluh " + units[s];
+            }
+            if (n < 1000) {
+                let r = Math.floor(n / 100);
+                let rem = n % 100;
+                return (r === 1 ? "se" : units[r]) + " ratus " + (rem > 0 ? numberToWords(rem) : "");
+            }
+            if (n < 1000000) {
+                let rb = Math.floor(n / 1000);
+                let rem = n % 1000;
+                return (rb === 1 ? "se" : numberToWords(rb)) + " ribu " + (rem > 0 ? numberToWords(rem) : "");
+            }
+            return n.toString();
+        }
+
+        function formatNumber(num) {
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+        }
+
+        const subTopics = {
+            operasi: [
+                { id: 'tambah', name: 'Tambah (+)' },
+                { id: 'tolak', name: 'Tolak (-)' },
+                { id: 'darab', name: 'Darab (×)' },
+                { id: 'bahagi', name: 'Bahagi (÷)' }
+            ],
+            teroka: [
+                { id: 'nama', name: 'Menamakan Nombor' },
+                { id: 'nilai', name: 'Nilai Tempat & Nilai Digit' },
+                { id: 'cerakin', name: 'Cerakin Nombor' },
+                { id: 'bundar', name: 'Pembundaran' }
+            ]
+        };
+
+        function updateSubOptions() {
+            const main = document.getElementById('topicMain').value;
+            const sub = document.getElementById('topicSub');
+            sub.innerHTML = "";
+            subTopics[main].forEach(t => {
+                const opt = document.createElement('option');
+                opt.value = t.id;
+                opt.innerText = t.name;
+                sub.appendChild(opt);
+            });
+
+            const rangeSelect = document.getElementById('rangeSelect');
+            const rangeLabel = document.getElementById('rangeLabel');
+            if (main === 'operasi') {
+                rangeLabel.innerText = "Bil. Digit";
+                rangeSelect.innerHTML = `
+                    <option value="1">1 Digit</option>
+                    <option value="2">2 Digit</option>
+                    <option value="3">3 Digit</option>
+                    <option value="4">4 Digit</option>
+                `;
+            } else {
+                rangeLabel.innerText = "Lingkungan";
+                rangeSelect.innerHTML = `
+                    <option value="100">Hingga 100</option>
+                    <option value="1000">Hingga 1 000</option>
+                    <option value="10000">Hingga 10 000</option>
+                    <option value="100000">Hingga 100 000</option>
+                `;
+            }
+            toggleExtraOptions();
+        }
+
+        function toggleExtraOptions() {
+            const main = document.getElementById('topicMain').value;
+            const sub = document.getElementById('topicSub').value;
+            const extra = document.getElementById('extraSelect');
+            const extraLabel = document.getElementById('extraLabel');
+            
+            if (main === 'operasi') {
+                if (sub === 'tambah' || sub === 'tolak') {
+                    extraLabel.innerText = "Teknik";
+                    extra.innerHTML = `
+                        <option value="no">Tanpa Kumpul Semula</option>
+                        <option value="yes">Kumpul Semula</option>
+                    `;
+                } else {
+                    extraLabel.innerText = "Kesukaran";
+                    extra.innerHTML = `
+                        <option value="mudah">Mudah</option>
+                        <option value="sederhana">Sederhana</option>
+                        <option value="sukar">Sukar</option>
+                    `;
+                }
+            } else {
+                if (sub === 'nama') {
+                    extraLabel.innerText = "Format";
+                    extra.innerHTML = `
+                        <option value="perkataan">Angka ke Perkataan</option>
+                        <option value="angka">Perkataan ke Angka</option>
+                    `;
+                } else if (sub === 'nilai' || sub === 'cerakin') {
+                    extraLabel.innerText = "Jenis Nilai";
+                    extra.innerHTML = `
+                        <option value="tempat">Nilai Tempat</option>
+                        <option value="digit">Nilai Digit</option>
+                    `;
+                } else if (sub === 'bundar') {
+                    extraLabel.innerText = "Bundar Kepada";
+                    extra.innerHTML = `
+                        <option value="10">Puluh Terdekat</option>
+                        <option value="100">Ratus Terdekat</option>
+                        <option value="1000">Ribu Terdekat</option>
+                        <option value="10000">Puluh Ribu Terdekat</option>
+                    `;
+                }
+            }
+        }
+
+        function generate() {
+            const main = document.getElementById('topicMain').value;
+            const sub = document.getElementById('topicSub').value;
+            const rangeVal = document.getElementById('rangeSelect').value;
+            const extra = document.getElementById('extraSelect').value;
+            const count = parseInt(document.getElementById('countSelect').value);
+            
+            const grid = document.getElementById('grid');
+            grid.innerHTML = "";
+            currentQuestions = [];
+
+            // Set Grid Layout
+            let gridClass = "grid gap-x-8 gap-y-10 flex-grow content-start ";
+            if (main === 'teroka') {
+                gridClass += (sub === 'nama' || sub === 'cerakin') ? "grid-cols-1 grid-print-1" : "grid-cols-2 grid-print-2";
+            } else {
+                gridClass += (sub === 'darab' || sub === 'bahagi') ? "grid-cols-2 grid-print-2" : "grid-cols-3 grid-print-3";
+            }
+            grid.className = gridClass;
+
+            document.getElementById('topicLabel').innerText = `TAJUK: ${main === 'operasi' ? 'OPERASI ASAS' : 'TEROKA NOMBOR'} (${sub.toUpperCase()})`;
+            document.getElementById('metaInfo').innerText = `Lingkungan/Digit: ${rangeVal} • Pilihan: ${extra}`;
+
+            for (let i = 0; i < count; i++) {
+                let qText = "", ansText = "";
+                
+                if (main === 'operasi') {
+                    const digits = parseInt(rangeVal);
+                    let n1, n2, res;
+                    if (sub === 'tambah' || sub === 'tolak') {
+                        if (extra === 'no') {
+                            let s1 = "", s2 = "";
+                            for (let d = 0; d < digits; d++) {
+                                let d1 = Math.floor(Math.random() * 5);
+                                let d2 = Math.floor(Math.random() * (9 - d1 + 1));
+                                if (sub === 'tolak') {
+                                    d1 = Math.floor(Math.random() * 9);
+                                    d2 = Math.floor(Math.random() * (d1 + 1));
+                                }
+                                s1 = d1 + s1; s2 = d2 + s2;
+                            }
+                            n1 = parseInt(s1) || 1; n2 = parseInt(s2) || 1;
+                        } else {
+                            n1 = Math.floor(Math.random() * Math.pow(10, digits));
+                            n2 = Math.floor(Math.random() * Math.pow(10, digits));
+                            if (sub === 'tolak' && n2 > n1) [n1, n2] = [n2, n1];
+                        }
+                        res = (sub === 'tambah') ? n1 + n2 : n1 - n2;
+                        qText = createVertical(n1, n2, sub === 'tambah' ? '+' : '-', i + 1);
+                        ansText = formatNumber(res);
+                    } else {
+                        const mulOpts = extra === 'mudah' ? [2,5,10] : (extra === 'sederhana' ? [3,4,6] : [7,8,9]);
+                        n2 = mulOpts[Math.floor(Math.random() * mulOpts.length)];
+                        if (sub === 'darab') {
+                            n1 = Math.floor(Math.random() * Math.pow(10, digits));
+                            res = n1 * n2;
+                        } else {
+                            res = Math.floor(Math.random() * Math.pow(10, digits));
+                            n1 = res * n2;
+                        }
+                        qText = createHorizontal(n1, n2, sub === 'darab' ? '×' : '÷', i + 1);
+                        ansText = formatNumber(res);
+                    }
+                } else {
+                    const max = parseInt(rangeVal);
+                    const num = Math.floor(Math.random() * max) + 1;
+                    
+                    if (sub === 'nama') {
+                        if (extra === 'perkataan') {
+                            qText = `<p class="text-xl font-bold mb-2 tracking-widest">${formatNumber(num)}</p><div class="h-10 border-b-2 border-slate-200"></div>`;
+                            ansText = numberToWords(num);
+                        } else {
+                            qText = `<p class="text-sm font-bold mb-2">${numberToWords(num)}</p><div class="h-10 border-b-2 border-slate-200 w-32"></div>`;
+                            ansText = formatNumber(num);
+                        }
+                    } else if (sub === 'nilai') {
+                        const sNum = num.toString();
+                        const idx = Math.floor(Math.random() * sNum.length);
+                        const digit = sNum[idx];
+                        const power = sNum.length - 1 - idx;
+                        const placeValues = ["sa", "puluh", "ratus", "ribu", "puluh ribu", "ratus ribu"];
+                        
+                        const formattedRaw = formatNumber(num);
+                        let numericCount = 0;
+                        let displayHtml = "";
+                        for (let char of formattedRaw) {
+                            if (/\d/.test(char)) {
+                                if (numericCount === idx) {
+                                    // Digit hanya diboldkan dan digaris sahaja (saiz asal)
+                                    displayHtml += `<b class="text-indigo-600 underline">${char}</b>`;
+                                } else {
+                                    displayHtml += char;
+                                }
+                                numericCount++;
+                            } else {
+                                displayHtml += char;
+                            }
+                        }
+
+                        qText = `<p class="mb-2">Nyatakan <b>nilai ${extra}</b> bagi digit yang bergaris dalam nombor <span class="font-mono ml-2 text-xl tracking-wider">${displayHtml}</span></p><div class="h-8 border-b border-slate-300 w-full"></div>`;
+                        ansText = extra === 'tempat' ? placeValues[power] : formatNumber(digit * Math.pow(10, power));
+                    } else if (sub === 'cerakin') {
+                        qText = `<p class="mb-2">Cerakinkan <b>${formatNumber(num)}</b> mengikut <b>nilai ${extra}</b>.</p><div class="h-12 border-b border-slate-200"></div>`;
+                        const sNum = num.toString();
+                        let parts = [];
+                        const placeValues = ["sa", "puluh", "ratus", "ribu", "puluh ribu", "ratus ribu"];
+                        for(let j=0; j<sNum.length; j++) {
+                            const d = parseInt(sNum[j]);
+                            if (d === 0 && extra === 'digit') continue;
+                            const p = sNum.length - 1 - j;
+                            if (extra === 'tempat') parts.push(`${d} ${placeValues[p]}`);
+                            else parts.push(formatNumber(d * Math.pow(10, p)));
+                        }
+                        ansText = parts.join(" + ");
+                    } else if (sub === 'bundar') {
+                        const target = parseInt(extra);
+                        const res = Math.round(num / target) * target;
+                        const targets = {"10": "puluh", "100": "ratus", "1000": "ribu", "10000": "puluh ribu"};
+                        qText = `<p class="mb-2">Bundarkan <b>${formatNumber(num)}</b> kepada <b>${targets[extra]} terdekat</b>.</p><div class="h-8 border-b border-slate-300 w-full"></div>`;
+                        ansText = formatNumber(res);
+                    }
+                    
+                    const card = document.createElement('div');
+                    card.className = "question-card relative border border-slate-100 rounded-2xl p-5";
+                    card.innerHTML = `<span class="absolute top-2 left-3 text-[9px] font-black text-slate-300 tracking-tighter uppercase">No. ${i+1}</span>
+                                     <div class="pt-4">${qText}</div>
+                                     <div class="answer-text hidden mt-2 text-blue-600 font-bold italic text-sm text-right">Jwp: ${ansText}</div>`;
+                    grid.appendChild(card);
+                    currentQuestions.push({ ans: ansText });
+                }
+            }
+            updateAnswerVisibility();
+        }
+
+        function createVertical(n1, n2, op, id) {
+            const card = document.createElement('div');
+            card.className = "question-card relative border border-slate-100 rounded-2xl p-5";
+            card.innerHTML = `
+                <span class="absolute top-2 left-3 text-[9px] font-black text-slate-300 uppercase tracking-tighter">No. ${id}</span>
+                <div class="flex flex-col items-end pt-4 text-3xl font-mono font-bold text-slate-800">
+                    <div class="mb-1 leading-none tracking-wider">${formatNumber(n1)}</div>
+                    <div class="border-b-4 border-slate-900 w-full text-right pb-1 flex justify-between items-end">
+                        <span class="text-2xl mb-1">${op}</span>
+                        <span class="leading-none tracking-wider">${formatNumber(n2)}</span>
+                    </div>
+                    <div class="mt-1 w-full h-14 border-b-[6px] border-double border-slate-900 flex items-center justify-end px-1">
+                        <span class="answer-text hidden text-blue-600 tracking-wider">${formatNumber(op === '+' ? n1 + n2 : n1 - n2)}</span>
+                    </div>
+                </div>`;
+            document.getElementById('grid').appendChild(card);
+            return ""; 
+        }
+
+        function createHorizontal(n1, n2, op, id) {
+            const card = document.createElement('div');
+            card.className = "question-card relative border border-slate-100 rounded-2xl p-5 min-h-[200px]";
+            card.innerHTML = `
+                <span class="absolute top-2 left-3 text-[9px] font-black text-slate-300 uppercase tracking-tighter">No. ${id}</span>
+                <div class="flex flex-col h-full pt-4">
+                    <div class="text-xl font-mono font-bold text-slate-900 mb-4 bg-slate-50 p-3 rounded-xl border border-slate-200 text-center">
+                        ${formatNumber(n1)} ${op} ${formatNumber(n2)} = <span class="answer-text hidden text-blue-600 underline decoration-double">${formatNumber(op === '×' ? n1*n2 : n1/n2)}</span><span class="empty-ans underline decoration-slate-300">_______</span>
+                    </div>
+                    <div class="flex-grow border-2 border-dashed border-slate-200 rounded-xl relative bg-slate-50/10">
+                        <span class="text-[8px] uppercase font-black text-slate-300 absolute top-2 left-3 tracking-tighter opacity-70">Jalan Kerja:</span>
+                    </div>
+                </div>`;
+            document.getElementById('grid').appendChild(card);
+            return "";
+        }
+
+        function toggleAnswers() {
+            answersVisible = !answersVisible;
+            const btn = document.getElementById('btnShowAns');
+            btn.innerText = answersVisible ? "SEMBUNYI JAWAPAN" : "PAPAR JAWAPAN";
+            btn.className = answersVisible ? "bg-orange-50 text-orange-600 px-8 py-3.5 rounded-2xl font-black border border-orange-200" : "bg-slate-100 text-slate-600 px-8 py-3.5 rounded-2xl font-black border border-slate-200";
+            updateAnswerVisibility();
+        }
+
+        function updateAnswerVisibility() {
+            document.querySelectorAll('.answer-text').forEach(el => el.classList.toggle('hidden', !answersVisible));
+            document.querySelectorAll('.empty-ans').forEach(el => el.classList.toggle('hidden', answersVisible));
+        }
+
+        window.onload = () => {
+            updateSubOptions();
+            generate();
+        };
+    </script>
+</body>
+</html>
